@@ -1,5 +1,5 @@
 # Recurrent Entity Networks
-Tensorflow Implementation of ["Tracking the World State with Recurrent Entity Networks"](https://arxiv.org/abs/1612.03969) by Henaff et. al.
+Tensorflow/TFLearn Implementation of ["Tracking the World State with Recurrent Entity Networks"](https://arxiv.org/abs/1612.03969) by Henaff et. al.
 
 ### Punchline ###
 By building a set of disparate memory cells, each responsible for different concepts, entities, or other content, Recurrent Entity Networks (EntNets) are able to efficiently and robustly maintain a “world-state” - one that can be updated easily and effectively with the influx of new information. 
