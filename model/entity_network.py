@@ -12,8 +12,8 @@ from tflearn.activations import sigmoid, softmax, prelu
 PAD_ID = 0
 
 class EntityNetwork():
-    def __init__(self, vocabulary, sentence_len, story_len, batch_size, embedding_size=100, 
-                 memory_slots=20, initializer=tf.truncated_normal_initializer(stddev=0.1)):
+    def __init__(self, vocabulary, sentence_len, story_len, batch_size, memory_slots=20, embedding_size=100, 
+                 learning_rate=0.01, initializer=tf.truncated_normal_initializer(stddev=0.1)):
         """
         Initialize an Entity Network with the necessary hyperparameters.
 
@@ -23,7 +23,7 @@ class EntityNetwork():
         """
         self.vocab_sz, self.sentence_len, self.story_len = len(vocabulary), max_sentence, story_len
         self.embed_sz, self.memory_slots, self.init = embedding_size, memory_slots, initializer
-        self.bsz = batch_size
+        self.bsz, self.learning_rate = batch_size
 
         # Setup Placeholders
         self.S = tf.placeholder(tf.int32, [None, self.story_len, self.sentence_len], name="Story")
@@ -36,6 +36,12 @@ class EntityNetwork():
 
         # Build Inference Pipeline
         self.logits = self.inference()
+
+        # Build Loss Computation
+        self.loss_val = self.loss()
+
+        # Build Training Operation
+        self.train_op = self.train()
     
     def instantiate_weights(self):
         """
@@ -98,6 +104,18 @@ class EntityNetwork():
         logits = tf.matmul(hidden, self.R)                                    # Shape: [None, vocab_sz]
         return logits
 
+    def loss(self):
+        """
+        Build loss computation - softmax cross-entropy between logits, and correct answer. 
+        """
+        return tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=self.logits, labels=self.A))
+    
+    def train(self):
+        """
+        Build ADAM Optimizer Training Operation.
+        """"
+        opt = tf.train.AdamOptimizer(self.learning_rate)
+        return opt.minimize(self.loss_val)
 
 class DynamicMemory(RNNCell):
     def __init__(self, memory_slots, memory_size, keys, activation=prelu,

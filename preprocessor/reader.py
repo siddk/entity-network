@@ -25,7 +25,6 @@ def parse(data_path, task_id, data_type, word2id=None):
             pickle.dump((S, S_len, Q, A, word2id), f)
         return S, S_len, Q, A, word2id
 
-
 def parse_stories(filename, word2id=None):
     # Open file, get lines
     with open(filename, 'r') as f:
@@ -89,7 +88,6 @@ def parse_stories(filename, word2id=None):
         A[i] = word2id[a]
         
     return S, S_len, Q, A, word2id
-
 
 def tokenize(sentence):
     """
