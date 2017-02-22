@@ -11,7 +11,9 @@ Furthermore, one can either let EntNet cell keys vary, or specifically seed them
 Entity Networks consist of three separate components:
 
 1) An Input Encoder, that takes the input sequence at a given time step, and encodes it into a fixed-size vector representation *s_t*
+
 2) The Dynamic Memory (the core of the model), that keeps a disparate set of memory cells, each with a different vector key *w_j* (the location), and a hidden state memory *h_j* (the content)
+
 3) The Output Module, that takes the hidden states, and applies a series of transformations to generate the output *y*.
 
 A breakdown of the components are as follows:
