@@ -69,3 +69,9 @@ Directory is structured in the following way:
 + tasks/ - Raw bAbI Task files.
 
 + run.py - Core script for training and evaluating the Recurrent Entity Network. 
+
+### References ###
+Big shout-out to Jim Fleming for his initial Tensorflow Implementation - his Dynamic Memory Cell Implementation 
+specifically made things a lot easier.
+
+Reference: [Jim Fleming's EntNet Memory Cell](https://github.com/jimfleming/recurrent-entity-networks/blob/master/entity_networks/dynamic_memory_cell.py)
