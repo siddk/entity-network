@@ -16,6 +16,12 @@ def main(_):
     valS, valS_len, valQ, valA, _ = parse(FLAGS.data_path, FLAGS.task_id, "valid", word2id=word2id)
     testS, testS_len, testQ, testA, _ = parse(FLAGS.data_path, FLAGS.task_id, "test", word2id=word2id)
 
+    # Assert Shapes
+    assert(trainS.shape[1:] == valS.shape[1:] == testS.shape[1:])
+    assert(trainQ.shape[1] == valQ.shape[1] == testQ.shape[1])
+
+    # Build Model
+    entity_net = EntityNetwork(word2id)
 
 if __name__ == "__main__":
     tf.app.run()
