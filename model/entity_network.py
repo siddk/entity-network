@@ -7,7 +7,7 @@ Dynamic Memory Cell, and Readout components.
 from collections import namedtuple
 import tensorflow as tf
 import tensorflow.nn.rnn_cell_impl._RNNCell as RNNCell
-import tflearn
+from tflearn.activations import sigmoid, softmax, prelu
 
 PAD_ID = 0
 
@@ -55,26 +55,52 @@ class EntityNetwork():
         # Create Memory Cell
         self.cell = DynamicMemory(self.memory_slots, self.embed_sz, self.keys)
 
+        # Output Module Variables
+        self.H = tf.get_variable("H", [self.embed_sz, self.embed_sz], initializer=self.init)
+        self.R = tf.get_variable("R", [self.embed_sz, self.vocab_sz], initializer=self.init)
+
     def inference(self):
         """
         Build inference pipeline, going from the story and question, through the memory cells, to the
         distribution over possible answers.  
         """
         # Story Input Encoder
-        story_embeddings = tf.nn.embedding_lookup(self.E, self.S)          # Shape: [None, story_len, sent_len, embed_sz]
-        story_embeddings = tf.multiply(story_embeddings, self.input_mask)  # Shape: [None, story_len, sent_len, embed_sz]
-        story_embeddings = tf.reduce_sum(story_embeddings, axis=[2])       # Shape: [None, story_len, embed_sz]
+        story_embeddings = tf.nn.embedding_lookup(self.E, self.S)             # Shape: [None, story_len, sent_len, embed_sz]
+        story_embeddings = tf.multiply(story_embeddings, self.input_mask)     # Shape: [None, story_len, sent_len, embed_sz]
+        story_embeddings = tf.reduce_sum(story_embeddings, axis=[2])          # Shape: [None, story_len, embed_sz]
 
         # Query Input Encoder
-        query_embedding = tf.nn.embedding_lookup(self.E, self.Q)           # Shape: [None, sent_len, embed_sz]
-        query_embedding = tf.multipy(query_embedding, self.input_mask)     # Shape: [None, sent_len, embed_sz]
-        query_embedding = tf.reduce_sum(query_embedding, axis=[1])         # Shape: [None, embed_sz]
+        query_embedding = tf.nn.embedding_lookup(self.E, self.Q)              # Shape: [None, sent_len, embed_sz]
+        query_embedding = tf.multipy(query_embedding, self.input_mask)        # Shape: [None, sent_len, embed_sz]
+        query_embedding = tf.reduce_sum(query_embedding, axis=[1])            # Shape: [None, embed_sz]
 
         # Send Story through Memory Cell
-        initial_state = self.cell.zero_state()
+        initial_state = self.cell.zero_state(self.bsz, dtype=tf.float32)
+        _, memories = tf.nn.dynamic_rnn(self.cell, story_embeddings, self.S_len, initial_state)
+
+        # Output Module 
+        scores = []
+        for m in memories:
+            score = tf.reduce_sum(tf.multiply(query_embedding, m), axis=[-1]) # Shape: [None]
+            score = tf.expand_dims(score, axis=-1)                            # Shape: [None, 1]
+            scores.append(score)
+        
+        # Generate Memory Scores
+        p_scores = softmax(tf.concat(scores, axis=[1]))                       # Shape: [None, mem_slots]
+        
+        # Get Weighted Sum of Memories
+        attention = tf.expand_dims(p_scores, axis=-1)                         # Shape: [None, mem_slots, 1]
+        memory_stack = tf.stack(memories, axis=1)                             # Shape: [None, mem_slots, embed_sz]
+        u = tf.reduce_sum(attention * memory_stack, axis=1)                   # Shape: [None, embed_sz]
+
+        # Output Transformations => Logits
+        hidden = prelu(tf.matmul(u, self.H) + query_embedding)                # Shape: [None, embed_sz]
+        logits = tf.matmul(hidden, self.R)                                    # Shape: [None, vocab_sz]
+        return logits
+
 
 class DynamicMemory(RNNCell):
-    def __init__(self, memory_slots, memory_size, keys, activation=tflearn.activations.prelu,
+    def __init__(self, memory_slots, memory_size, keys, activation=prelu,
                  initializer=tf.truncated_normal_initializer(stddev=0.1)):
         """
         Instantiate a DynamicMemory Cell, with the given number of memory slots, and key vectors.
@@ -116,7 +142,7 @@ class DynamicMemory(RNNCell):
             content_g = tf.reduce_sum(tf.multiply(inputs, h), axis=[1])                  # Shape: [bsz]
             address_g = tf.reduce_sum(tf.multiply(inputs, 
                                       tf.expand_dims(0, self.keys[block_id])), axis=[1]) # Shape: [bsz]
-            g = tflearn.activations.sigmoid(content_g + address_g)
+            g = sigmoid(content_g + address_g)
 
             # New State Candidate
             h_component = tf.matmul(h, self.U)                                           # Shape: [bsz, mem_sz]
@@ -132,9 +158,3 @@ class DynamicMemory(RNNCell):
             new_states.append(new_h_norm)
         
         return new_states
-
-
-
-
-
-
