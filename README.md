@@ -6,6 +6,15 @@ By building a set of disparate memory cells, each responsible for different conc
 
 Furthermore, one can either let EntNet cell keys vary, or specifically seed them with specific embeddings, thereby forcing the model to track a given set of entities/objects/locations, allowing for the easy interpretation of the underlying decision-making process.
 
+### Results ###
+Implementation results are as follows (graphs of training/validation loss will be added later). Some of the tasks 
+are fairly computationally intensive, so it might take a while to get benchmark results.
+
+1) **Single-Supporting Fact**
+    + Test Accuracy: 98.9\%
+    + Epochs to Converge: 50
+
+
 ### Components ###
 
 Entity Networks consist of three separate components:
