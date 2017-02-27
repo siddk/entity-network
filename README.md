@@ -11,7 +11,9 @@ Implementation results are as follows (graphs of training/validation loss will b
 are fairly computationally intensive, so it might take a while to get benchmark results.
 
 1) **Single-Supporting Fact**
+
     + Test Accuracy: 98.9\%
+    
     + Epochs to Converge: 50
 
 
