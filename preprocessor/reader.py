@@ -13,7 +13,7 @@ FORMAT_STR = "qa%d_"
 PAD_ID = 0
 SPLIT_RE = re.compile('(\W+)?')
 
-def parse(data_path, task_id, data_type, word2id=None):
+def parse(data_path, task_id, data_type, word2id=None, bsz=32):
     cache_path = data_path + "-pik/" + FORMAT_STR % task_id + data_type + ".pik"
     if os.path.exists(cache_path):
         with open(cache_path, 'r') as f:
@@ -21,9 +21,10 @@ def parse(data_path, task_id, data_type, word2id=None):
     else:
         [filename] = filter(lambda x: FORMAT_STR % task_id in x and data_type in x, os.listdir(data_path))
         S, S_len, Q, A, word2id = parse_stories(os.path.join(data_path, filename), word2id)
+        n = (S.shape[0] / bsz) * bsz
         with open(cache_path, 'w') as f:
-            pickle.dump((S, S_len, Q, A, word2id), f)
-        return S, S_len, Q, A, word2id
+            pickle.dump((S[:n], S_len[:n], Q[:n], A[:n], word2id), f)
+        return S[:n], S_len[:n], Q[:n], A[:n], word2id
 
 def parse_stories(filename, word2id=None):
     # Open file, get lines

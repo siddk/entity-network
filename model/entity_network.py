@@ -8,6 +8,7 @@ from collections import namedtuple
 from tflearn.activations import sigmoid, softmax
 import functools
 import tensorflow as tf
+import tflearn
 
 PAD_ID = 0
 
@@ -45,8 +46,10 @@ class EntityNetwork():
         self.Q = tf.placeholder(tf.int32, [None, self.sentence_len], name="Query")
         self.A = tf.placeholder(tf.int64, [None], name="Answer")
 
-        # Setup Global Step 
-        self.global_step = tf.Variable(0, trainable=False)
+        # Setup Global, Epoch Step 
+        self.global_step = tf.Variable(0, trainable=False, name="Global_Step")
+        self.epoch_step = tf.Variable(0, trainable=False, name="Epoch_Step")
+        self.epoch_increment = tf.assign(self.epoch_step, tf.add(self.epoch_step, tf.constant(1)))
 
         # Instantiate Network Weights
         self.instantiate_weights()
@@ -62,7 +65,7 @@ class EntityNetwork():
 
         # Create operations for computing the accuracy
         correct_prediction = tf.equal(tf.argmax(self.logits, 1), self.A)
-        self.accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+        self.accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32), name="Accuracy")
     
     def instantiate_weights(self):
         """
