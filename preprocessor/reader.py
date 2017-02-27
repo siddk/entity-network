@@ -14,7 +14,7 @@ PAD_ID = 0
 SPLIT_RE = re.compile('(\W+)?')
 
 def parse(data_path, task_id, data_type, word2id=None):
-    cache_path = data_path+ "-pik/" + FORMAT_STR % task_id + data_type + ".pik"
+    cache_path = data_path + "-pik/" + FORMAT_STR % task_id + data_type + ".pik"
     if os.path.exists(cache_path):
         with open(cache_path, 'r') as f:
             return pickle.load(f)
@@ -79,6 +79,9 @@ def parse_stories(filename, word2id=None):
         for j in range(len(s)):
             for k in range(len(s[j])):
                 S[i][j][k] = word2id[s[j][k]]
+
+        # Populate story length
+        S_len[i] = len(s)
         
         # Populate Question
         for j in range(len(q)):

@@ -46,7 +46,7 @@ def main(_):
         for epoch in range(FLAGS.num_epochs):
             loss, acc, counter = 0.0, 0.0, 0
             for start, end in zip(range(0, n, bsz), range(bsz, n, bsz)):
-                curr_loss, curr_acc, _ = sess.run([entity_net.loss_val, entity_net.accuracy, entity_net.train_op], 
+                curr_loss, curr_acc, logits, _ = sess.run([entity_net.loss_val, entity_net.accuracy, entity_net.logits, entity_net.train_op], 
                                                   feed_dict={entity_net.S: trainS[start:end], 
                                                              entity_net.S_len: trainS_len[start:end],
                                                              entity_net.Q: trainQ[start:end],
