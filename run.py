@@ -20,7 +20,6 @@ tf.app.flags.DEFINE_float("decay_rate", 0.5, "Rate of decay for learning rate.")
 tf.app.flags.DEFINE_float('clip_gradients', 40.0, 'Norm to clip gradients to.')
 
 
-
 def main(_):
     # Get Vectorized Forms of Stories, Questions, and Answers
     trainS, trainS_len, trainQ, trainA, word2id = parse(FLAGS.data_path, FLAGS.task_id, "train")
