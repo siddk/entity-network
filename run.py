@@ -35,9 +35,10 @@ tf.app.flags.DEFINE_float("validation_threshold", .95, "Validation threshold for
 
 def main(_):
     # Get Vectorized Forms of Stories, Questions, and Answers
-    trainS, trainS_len, trainQ, trainA, word2id = parse(FLAGS.data_path, FLAGS.task_id, "train", bsz=FLAGS.batch_size)
-    valS, valS_len, valQ, valA, _ = parse(FLAGS.data_path, FLAGS.task_id, "valid", word2id=word2id, bsz=FLAGS.batch_size)
-    testS, testS_len, testQ, testA, _ = parse(FLAGS.data_path, FLAGS.task_id, "test", word2id=word2id, bsz=FLAGS.batch_size)
+    train, val, test, word2id = parse(FLAGS.data_path, FLAGS.task_id)
+    trainS, trainS_len, trainQ, trainA, _ = train
+    valS, valS_len, valQ, valA, _ = val
+    testS, testS_len, testQ, testA, _ = test
 
     # Assert Shapes
     assert(trainS.shape[1:] == valS.shape[1:] == testS.shape[1:])
@@ -92,19 +93,10 @@ def main(_):
 
             # Validate every so often
             if epoch % FLAGS.validate_every == 0:
-                v_loss, v_acc, v_counter = 0.0, 0.0, 0
-                for start, end in zip(range(0, val_n, bsz), range(bsz, val_n, bsz)):
-                    curr_v_loss, curr_v_acc = sess.run([entity_net.loss_val, entity_net.accuracy],
-                                                        feed_dict={entity_net.S: valS[start:end],
-                                                                   entity_net.S_len: valS_len[start:end],
-                                                                   entity_net.Q: valQ[start:end],
-                                                                   entity_net.A: valA[start:end]})
-                    v_loss, v_acc, v_counter = v_loss + curr_v_loss, v_acc + curr_v_acc, v_counter + 1
-                print "Epoch %d\tValid Loss: %.3f\tValid Accuracy: %.3f" % (epoch, 
-                    v_loss / float(v_counter), v_acc / float(v_counter))
+                val_loss_val, val_acc_val = do_eval(val_n, valS, valS_len, valQ, valA)
                 
                 # Add val loss, val acc to data 
-                val_loss[epoch], val_acc[epoch] = v_loss / float(v_counter), v_acc / float(v_counter)
+                val_loss[epoch], val_acc[epoch] = val_loss_val, val_acc_val
 
                 # Update best_val
                 if val_acc[epoch] > best_val:
@@ -123,21 +115,25 @@ def main(_):
             sess.run(entity_net.epoch_increment)
         
         # Test Loop
-        test_loss, test_acc, test_counter = 0.0, 0.0, 0
-        for start, end in zip(range(0, test_n, bsz), range(bsz, test_n, bsz)):
-            curr_test_loss, curr_test_acc = sess.run([entity_net.loss_val, entity_net.accuracy],
-                                                     feed_dict={entity_net.S: testS[start:end],
-                                                                entity_net.S_len: testS_len[start:end],
-                                                                entity_net.Q: testQ[start:end],
-                                                                entity_net.A: testA[start:end]})
-            test_loss, test_acc, test_counter = test_loss + curr_test_loss, test_acc + curr_test_acc, test_counter + 1
+        test_loss, test_acc = do_eval(test_n, testS, testS_len, testQ, testA)
         
         # Print and Write Test Loss/Accuracy
-        print "Test Loss: %.3f\tTest Accuracy: %.3f" % (test_loss / float(test_counter), 
-            test_acc / float(test_counter))
+        print "Test Loss: %.3f\tTest Accuracy: %.3f" % (test_loss, test_acc)
         with open(ckpt_dir + "output.txt", 'w') as g:
-            g.write("Test Loss: %.3f\tTest Accuracy: %.3f\n" % (test_loss / float(test_counter), 
-                test_acc / float(test_counter)))
+            g.write("Test Loss: %.3f\tTest Accuracy: %.3f\n" % (test_loss, test_acc))
+
+def do_eval(n, evalS, evalS_len, evalQ, evalA):
+    """Perform an Evaluation Epoch on the Given Data"""
+    eval_loss, eval_acc, eval_counter = 0.0, 0.0, 0
+    for start, end in zip(range(0, n, bsz), range(bsz, n, bsz)):
+        curr_eval_loss, curr_eval_acc = sess.run([entity_net.loss_val, entity_net.accuracy],
+                                                 feed_dict={entity_net.S: evalS[start:end],
+                                                            entity_net.S_len: evalS_len[start:end],
+                                                            entity_net.Q: evalQ[start:end],
+                                                            entity_net.A: evalA[start:end]})
+        eval_loss, eval_acc, eval_counter = eval_loss + curr_eval_loss, eval_acc + curr_eval_acc, eval_counter + 1
+    return eval_loss / float(eval_counter), eval_acc / float(eval_acc)
+    
 
 if __name__ == "__main__":
     tf.app.run()
