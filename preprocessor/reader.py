@@ -27,14 +27,17 @@ def parse(data_path, task_id, word2id=None, bsz=32):
             story_data.append(stories)
             global_sentence_max = max(global_sentence_max, sentence_max)
             global_story_max = max(global_story_max, story_max)
-    for i, data_type in enumerate(DATA_TYPES):
-        cache_path = data_path + "-pik/" + FORMAT_STR % task_id + data_type + ".pik"
-        S, S_len, Q, A = vectorize_stories(story_data[i], global_sentence_max, global_story_max, word2id, task_id)
-        n = (S.shape[0] / bsz) * bsz
-        with open(cache_path, 'w') as f:
-            pickle.dump((S[:n], S_len[:n], Q[:n], A[:n], word2id), f)
-        vectorized_data.append((S[:n], S_len[:n], Q[:n], A[:n], word2id))
-    return vectorized_data + [word2id]
+    if vectorized_data:
+        return vectorized_data + [vectorized_data[0][4]]
+    else:
+        for i, data_type in enumerate(DATA_TYPES):
+            cache_path = data_path + "-pik/" + FORMAT_STR % task_id + data_type + ".pik"
+            S, S_len, Q, A = vectorize_stories(story_data[i], global_sentence_max, global_story_max, word2id, task_id)
+            n = (S.shape[0] / bsz) * bsz
+            with open(cache_path, 'w') as f:
+                pickle.dump((S[:n], S_len[:n], Q[:n], A[:n], word2id), f)
+            vectorized_data.append((S[:n], S_len[:n], Q[:n], A[:n], word2id))
+        return vectorized_data + [word2id]
 
 def parse_stories(filename, word2id=None):
     # Open file, get lines

@@ -45,7 +45,7 @@ def main(_):
     assert(trainQ.shape[1] == valQ.shape[1] == testQ.shape[1])
 
     # Setup Checkpoint + Log Paths
-    ckpt_dir = "checkpoints/qa_%d/" % FLAGS.task_id
+    ckpt_dir = "./checkpoints/qa_%d/" % FLAGS.task_id
     if not os.path.exists(ckpt_dir):
         os.mkdir(ckpt_dir)
     
@@ -62,7 +62,7 @@ def main(_):
         # Initialize all Variables
         if os.path.exists(ckpt_dir + "checkpoint"):
             print 'Restoring Variables from Checkpoint!'
-            saver.restore(sess, ckpt_dir + "model.ckpt")
+            saver.restore(sess, tf.train.latest_checkpoint(ckpt_dir))
             with open(ckpt_dir + "training_logs.pik", 'r') as f:
                 train_loss, train_acc, val_loss, val_acc = pickle.load(f)
         else:
@@ -75,7 +75,7 @@ def main(_):
 
         # Start Training Loop
         n, val_n, test_n, bsz, best_val = trainS.shape[0], valS.shape[0], testS.shape[0], FLAGS.batch_size, 0.0
-        for epoch in range(FLAGS.num_epochs - curr_epoch):
+        for epoch in range(curr_epoch + 1, FLAGS.num_epochs):
             loss, acc, counter = 0.0, 0.0, 0
             for start, end in zip(range(0, n, bsz), range(bsz, n, bsz)):
                 curr_loss, curr_acc, _ = sess.run([entity_net.loss_val, entity_net.accuracy, entity_net.train_op], 
@@ -93,7 +93,7 @@ def main(_):
 
             # Validate every so often
             if epoch % FLAGS.validate_every == 0:
-                val_loss_val, val_acc_val = do_eval(val_n, valS, valS_len, valQ, valA)
+                val_loss_val, val_acc_val = do_eval(val_n, bsz, sess, entity_net, valS, valS_len, valQ, valA)
                 
                 # Add val loss, val acc to data 
                 val_loss[epoch], val_acc[epoch] = val_loss_val, val_acc_val
@@ -115,14 +115,14 @@ def main(_):
             sess.run(entity_net.epoch_increment)
         
         # Test Loop
-        test_loss, test_acc = do_eval(test_n, testS, testS_len, testQ, testA)
+        test_loss, test_acc = do_eval(test_n, bsz, sess, entity_net, testS, testS_len, testQ, testA)
         
         # Print and Write Test Loss/Accuracy
         print "Test Loss: %.3f\tTest Accuracy: %.3f" % (test_loss, test_acc)
         with open(ckpt_dir + "output.txt", 'w') as g:
             g.write("Test Loss: %.3f\tTest Accuracy: %.3f\n" % (test_loss, test_acc))
 
-def do_eval(n, evalS, evalS_len, evalQ, evalA):
+def do_eval(n, bsz, sess, entity_net, evalS, evalS_len, evalQ, evalA):
     """Perform an Evaluation Epoch on the Given Data"""
     eval_loss, eval_acc, eval_counter = 0.0, 0.0, 0
     for start, end in zip(range(0, n, bsz), range(bsz, n, bsz)):

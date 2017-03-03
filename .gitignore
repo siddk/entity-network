@@ -90,3 +90,6 @@ ENV/
 
 # VS Code 
 .vscode/
+
+# Checkpoints 
+checkpoints/
