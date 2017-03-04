@@ -93,3 +93,6 @@ ENV/
 
 # Checkpoints 
 checkpoints/
+
+# Pik
+tasks/en-valid-10k-pik/
