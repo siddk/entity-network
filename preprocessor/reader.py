@@ -47,7 +47,7 @@ def parse_stories(filename, word2id=None):
     # Go through lines, building story sets
     stories, story = [], []
     for line in lines:
-        line = line.decode('utf-8').strip()
+        line = line.strip()
         nid, line = line.split(' ', 1)
         nid = int(nid)
         if nid == 1:
@@ -56,7 +56,7 @@ def parse_stories(filename, word2id=None):
             query, answer, supporting = line.split('\t')
             query = tokenize(query)
             substory = [x for x in story if x]
-            stories.append((substory, query, answer))
+            stories.append((substory, query, answer.lower()))
             story.append('')
         else:
             sentence = tokenize(line)

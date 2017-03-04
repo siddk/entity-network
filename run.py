@@ -75,7 +75,7 @@ def main(_):
 
         # Start Training Loop
         n, val_n, test_n, bsz, best_val = trainS.shape[0], valS.shape[0], testS.shape[0], FLAGS.batch_size, 0.0
-        for epoch in range(curr_epoch + 1, FLAGS.num_epochs):
+        for epoch in range(curr_epoch, FLAGS.num_epochs):
             loss, acc, counter = 0.0, 0.0, 0
             for start, end in zip(range(0, n, bsz), range(bsz, n, bsz)):
                 curr_loss, curr_acc, _ = sess.run([entity_net.loss_val, entity_net.accuracy, entity_net.train_op], 
@@ -91,9 +91,13 @@ def main(_):
             # Add train loss, train acc to data
             train_loss[epoch], train_acc[epoch] = loss / float(counter), acc / float(counter)
 
+            # Increment Epoch
+            sess.run(entity_net.epoch_increment)
+
             # Validate every so often
             if epoch % FLAGS.validate_every == 0:
                 val_loss_val, val_acc_val = do_eval(val_n, bsz, sess, entity_net, valS, valS_len, valQ, valA)
+                print "Epoch %d Validation Loss: %.3f\tValidation Accuracy: %.3f" % (epoch, val_loss_val, val_acc_val)
                 
                 # Add val loss, val acc to data 
                 val_loss[epoch], val_acc[epoch] = val_loss_val, val_acc_val
@@ -101,18 +105,15 @@ def main(_):
                 # Update best_val
                 if val_acc[epoch] > best_val:
                     best_val = val_acc[epoch]
-                
-                # Early Stopping Condition
-                if best_val > FLAGS.validation_threshold:
-                    break
 
                 # Save Model
                 saver.save(sess, ckpt_dir + "model.ckpt", global_step=entity_net.epoch_step)
                 with open(ckpt_dir + "training_logs.pik", 'w') as f:
                     pickle.dump((train_loss, train_acc, val_loss, val_acc), f)
 
-            # Increment Epoch
-            sess.run(entity_net.epoch_increment)
+                # Early Stopping Condition
+                if best_val > FLAGS.validation_threshold:
+                    break
         
         # Test Loop
         test_loss, test_acc = do_eval(test_n, bsz, sess, entity_net, testS, testS_len, testQ, testA)
@@ -132,7 +133,7 @@ def do_eval(n, bsz, sess, entity_net, evalS, evalS_len, evalQ, evalA):
                                                             entity_net.Q: evalQ[start:end],
                                                             entity_net.A: evalA[start:end]})
         eval_loss, eval_acc, eval_counter = eval_loss + curr_eval_loss, eval_acc + curr_eval_acc, eval_counter + 1
-    return eval_loss / float(eval_counter), eval_acc / float(eval_acc)
+    return eval_loss / float(eval_counter), eval_acc / float(eval_counter)
     
 
 if __name__ == "__main__":
