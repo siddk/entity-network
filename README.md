@@ -10,6 +10,11 @@ Furthermore, one can either let EntNet cell keys vary, or specifically seed them
 Implementation results are as follows (graphs of training/validation loss will be added later). Some of the tasks 
 are fairly computationally intensive, so it might take a while to get benchmark results.
 
+Note that for efficiency, training stopped after validation accuracy passed a threshold of 95%. This is different than
+the method used in the paper, which runs tasks for 200 epochs, and reports the best model across 10 different runs. The number of runs, epochs to converge, and final train/validation/test accuracies (best on validation over different runs) for this repository relative to the paper results are as follows:
+
+<p align="center"><img src="https://rawgit.com/siddk/entity-network/None/eval/svgs/43a2eb97f1ad6308b80b9f38ff2ae6b9.svg?invert_in_darkmode" align=middle width=996.3591pt height=407.71335pt/></p>
+
 1) **Single-Supporting Fact**
 
     + Test Accuracy: 98.9\%
