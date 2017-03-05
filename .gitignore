@@ -92,7 +92,8 @@ ENV/
 .vscode/
 
 # Checkpoints 
-checkpoints/
+checkpoint
+model.ckpt*
 
 # Mac OS 
 .DS_Store

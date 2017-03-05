@@ -66,8 +66,8 @@ The actual updates are as follows:
     - Normalizes states based on cosine similarity.
 + <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/341317311489f34a57af823138e4fd8a.svg?invert_in_darkmode" align=middle width=88.94622pt height=24.65793pt/>
     - Weighted sum of hidden states
-+ <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/2ba27d7ef95969f4194000abb9f7e89d.svg?invert_in_darkmode" align=middle width=180.187095pt height=24.56553pt/> 
-    - $\mathbf{R} , \mathbf{H}$ are trainable model parameters.
++ <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/0ac5cd1ce89de7dbc1e4329a272457d6.svg?invert_in_darkmode" align=middle width=192.040695pt height=24.56553pt/> 
+    - Trainable model parameters:  $ \mathbf{R}, \mathbf{H} $
     - As long as you can build some sort of loss using y, then the entirety of the model is trainable via Backpropagation-Through-Time (BPTT).
 
 ### Repository Structure ###
