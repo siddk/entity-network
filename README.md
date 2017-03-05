@@ -21,21 +21,21 @@ are fairly computationally intensive, so it might take a while to get benchmark 
 
 Entity Networks consist of three separate components:
 
-1) An Input Encoder, that takes the input sequence at a given time step, and encodes it into a fixed-size vector representation <p align="center"><img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/9da86ae1c0aa2293db8f7d07ab186bf5.svg?invert_in_darkmode" align=middle width=12.6239355pt height=9.516903pt/></p>
+1) An Input Encoder, that takes the input sequence at a given time step, and encodes it into a fixed-size vector representation <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/1f1c28e0a1b1708c6889fb006c886784.svg?invert_in_darkmode" align=middle width=12.623985pt height=14.10255pt/>
 
-2) The Dynamic Memory (the core of the model), that keeps a disparate set of memory cells, each with a different vector key <p align="center"><img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/98d5abbafdc10c296ee92084f5c83ed4.svg?invert_in_darkmode" align=middle width=17.806305pt height=11.745987pt/></p> (the location), and a hidden state memory <p align="center"><img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/bc0dfb3ea407c81c1ce46b2d59ed2be7.svg?invert_in_darkmode" align=middle width=15.5174415pt height=16.0677pt/></p> (the content)
+2) The Dynamic Memory (the core of the model), that keeps a disparate set of memory cells, each with a different vector key <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/40cca55dbe7b8452cf1ede03d21fe3ed.svg?invert_in_darkmode" align=middle width=17.806305pt height=14.10255pt/> (the location), and a hidden state memory <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/6d22be1359e204374e6f0b45e318d561.svg?invert_in_darkmode" align=middle width=15.517425pt height=22.74591pt/> (the content)
 
-3) The Output Module, that takes the hidden states, and applies a series of transformations to generate the output *y*.
+3) The Output Module, that takes the hidden states, and applies a series of transformations to generate the output <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/deceeaf6940a8c7a5a02373728002b0f.svg?invert_in_darkmode" align=middle width=8.61696pt height=14.10255pt/>.
 
 A breakdown of the components are as follows:
 
-**Input Encoder**: Takes the input from the environment (i.e. a sentence from a story), and maps it to a fixed size state vector <p align="center"><img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/9da86ae1c0aa2293db8f7d07ab186bf5.svg?invert_in_darkmode" align=middle width=12.6239355pt height=9.516903pt/></p>.
+**Input Encoder**: Takes the input from the environment (i.e. a sentence from a story), and maps it to a fixed size state vector <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/1f1c28e0a1b1708c6889fb006c886784.svg?invert_in_darkmode" align=middle width=12.623985pt height=14.10255pt/>.
 
-This repository (like the paper) utilizes a learned multiplicative mask, where each embedding of the sentence is multiplied element-wise with a mask vector <p align="center"><img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/1fa89784462d8bb8d403d245c34983c0.svg?invert_in_darkmode" align=middle width=12.651441pt height=14.55729pt/></p> and then summed together. 
+This repository (like the paper) utilizes a learned multiplicative mask, where each embedding of the sentence is multiplied element-wise with a mask vector <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/9b6dbadab1b122f6d297345e9d3b8dd7.svg?invert_in_darkmode" align=middle width=12.65154pt height=22.74591pt/> and then summed together. 
 
 Alternatively, one could just as easily imagine an LSTM or CNN encoder to generate this initial input.
 
-**Dynamic Memory**: Core of the model, consists of a series of key vectors <p align="center"><img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/311a7f69b3c159624af52e06096b214a.svg?invert_in_darkmode" align=middle width=98.03904pt height=10.2355935pt/></p> and memory (hidden state) vectors <p align="center"><img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/7bd8f7862e970280c1768c7cbd951b79.svg?invert_in_darkmode" align=middle width=91.17273pt height=14.55729pt/></p>.
+**Dynamic Memory**: Core of the model, consists of a series of key vectors <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/5ccebbf530ff52e71bfb606d574fdaca.svg?invert_in_darkmode" align=middle width=98.039205pt height=14.10255pt/> and memory (hidden state) vectors <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/68db9e670b455c9eef5d6b82287b3676.svg?invert_in_darkmode" align=middle width=91.17273pt height=22.74591pt/>.
 
 The keys and state vectors function similarly to how the program keys and program embeddings function in the NPI/NTM - the keys represent location, while the memories are content.
 Only the content (memories) get updated at inference time, with the influx of new information. 
@@ -43,17 +43,17 @@ Only the content (memories) get updated at inference time, with the influx of ne
 Furthermore, one can seed and fix the key vectors such that they reflect certain words/entities => the paper does this by fixing key vectors to certain word embeddings, and using a simple BoW state encoding.
 This repository currently only supports random key vector seeds.
 
-The Dynamic Memory updates given an input <p align="center"><img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/9da86ae1c0aa2293db8f7d07ab186bf5.svg?invert_in_darkmode" align=middle width=12.6239355pt height=9.516903pt/></p> are as follows - this is very similar to the GRU update equations:
+The Dynamic Memory updates given an input <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/1f1c28e0a1b1708c6889fb006c886784.svg?invert_in_darkmode" align=middle width=12.623985pt height=14.10255pt/> are as follows - this is very similar to the GRU update equations:
 
-+ <p align="center"><img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/d8f3196c7a4116939acc0dbcccc56a47.svg?invert_in_darkmode" align=middle width=195.35175pt height=19.315725pt/></p> 
++ <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/e30634013819f430680ff7d9d2d67190.svg?invert_in_darkmode" align=middle width=195.352245pt height=27.59823pt/> 
     - Gating function, determines how much memory j should be affected by the given input.
 
-+ <p align="center"><img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/38a2d4299891ce54233e21ae056bb7dd.svg?invert_in_darkmode" align=middle width=259.06815pt height=19.97028pt/></p> 
++ <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/070eb4a8ad370755d533e0f8c6dea9aa.svg?invert_in_darkmode" align=middle width=259.068645pt height=30.55107pt/> 
     - New state update - U, V, W are model parameters that are shared across all memory cells .
     - Model can be simplified by constraining U, V, W to be zero, or identity.
 
-+ <p align="center"><img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/4157c964a1356cfa98d96ac886e630b8.svg?invert_in_darkmode" align=middle width=116.747565pt height=19.97028pt/></p>
-    - Gated update, elementwise product of g with ~h.
++ <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/1f3fc749aea58a01cb3dfe4942924983.svg?invert_in_darkmode" align=middle width=116.74773pt height=30.55107pt/>
+    - Gated update, elementwise product of g with $\tilde{h}$.
     - Dictates how much the given memory should be updated.
 
 **Output Module**: Model interface, takes in the memories and a query vector q, and transforms them into the required output.
@@ -62,12 +62,12 @@ Functions like a 1-hop Memory Network (Sukhbaatar, Weston), building a weighting
 
 The actual updates are as follows:
 
-+ <p align="center"><img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/7a3f0df1ef826e090dbae54abe948537.svg?invert_in_darkmode" align=middle width=141.104535pt height=19.315725pt/></p>
++ <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/95f55f07bc9f2f920afdda389426a490.svg?invert_in_darkmode" align=middle width=141.104535pt height=27.59823pt/>
     - Normalizes states based on cosine similarity.
-+ <p align="center"><img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/464c556755cc1642c645a44e763ac409.svg?invert_in_darkmode" align=middle width=88.412445pt height=38.878455pt/></p>
++ <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/341317311489f34a57af823138e4fd8a.svg?invert_in_darkmode" align=middle width=88.94622pt height=24.65793pt/>
     - Weighted sum of hidden states
-+ <p align="center"><img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/9e8ce0d2c9b7d64d9cff2cc2f3621f11.svg?invert_in_darkmode" align=middle width=180.1866pt height=16.376943pt/></p> 
-    - $$\mathbf{R}, \mathbf{H}$$ are trainable model parameters.
++ <img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/2ba27d7ef95969f4194000abb9f7e89d.svg?invert_in_darkmode" align=middle width=180.187095pt height=24.56553pt/> 
+    - $\mathbf{R} , \mathbf{H}$ are trainable model parameters.
     - As long as you can build some sort of loss using y, then the entirety of the model is trainable via Backpropagation-Through-Time (BPTT).
 
 ### Repository Structure ###
