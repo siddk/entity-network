@@ -68,6 +68,8 @@ def parse_stories(filename, word2id=None):
         for (s, _, _) in stories:
             for sentence in s:
                 vocab.update(sentence)
+        for (_, _, a) in stories:
+            vocab.add(a)
         id2word = ['PAD_ID'] + list(vocab)
         word2id = {w: i for i, w in enumerate(id2word)}
     

@@ -94,5 +94,11 @@ ENV/
 # Checkpoints 
 checkpoints/
 
-# Pik
-tasks/en-valid-10k-pik/
+# Mac OS 
+.DS_Store
+
+# Pickle files
+tasks/
+
+# INPUT 
+INPUT.md
