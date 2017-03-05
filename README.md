@@ -26,7 +26,7 @@ Additionally, plots of the training/validation loss and accuracies through train
 id is the id of the task at hand. As an example, here is the plot for the graph of Task 1 - Single Supporting Fact's 
 training:
 
-![alt text](https://github.com/siddk/entity_network/raw/master/eval/qa_1/run_1.png "Task 1 - Single Supporting Fact")
+![alt text](https://github.com/siddk/entity-network/blob/master/eval/qa_1/run_1.png "Task 1 - Single Supporting Fact")
 
 ### Components ###
 
