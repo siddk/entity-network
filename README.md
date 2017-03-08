@@ -13,7 +13,7 @@ are fairly computationally intensive, so it might take a while to get benchmark 
 Note that for efficiency, training stopped after validation accuracy passed a threshold of 95%. This is different than
 the method used in the paper, which runs tasks for 200 epochs, and reports the best model across 10 different runs. The number of runs, epochs to converge, and final train/validation/test accuracies (best on validation over different runs) for this repository relative to the paper results are as follows:
 
-<p align="center"><img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/65d3fcf9d3cc60a1fdedfb7a33528e8b.svg?invert_in_darkmode" align=middle width=1016.8059pt height=432.5607pt/></p>
+<p align="center"><img src="https://rawgit.com/siddk/entity-network/master/eval/svgs/f27575f13e0a5dd47d5090418b7121b4.svg?invert_in_darkmode" align=middle width=1016.8059pt height=432.5607pt/></p>
 
 Note that the italics above indicate examples of *overfitting*. Note that the notes rows consist of single runs
 of the model - this is probably why multiple runs are necessary. If this continues to happen, I'll look into ways
